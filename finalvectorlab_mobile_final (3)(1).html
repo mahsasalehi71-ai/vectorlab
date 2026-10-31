@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head><style data-atlas-ui-policy="v3">
+[data-testid="accounts-profile-button"],
+[data-testid="profile-menu-button"],
+.accounts-profile-button,
+[aria-label="Open profile menu"],
+[data-testid*="history-item"][data-testid*="options"],
+[aria-label="Open conversation options"],
+[data-testid="conversation-options-button"],
+[data-sidebar-item="true"] .trailing button.__menu-item-trailing-btn,
+[data-sidebar-item="true"] .trailing-pair button.__menu-item-trailing-btn,
+[data-sidebar-item="true"] .trailing [data-trailing-button],
+[data-sidebar-item="true"] .trailing-pair [data-trailing-button],
+.trailing.highlight button.__menu-item-trailing-btn,
+.trailing.highlight [data-trailing-button],
+button[aria-label="Show project details"],
+button[aria-label*="project details" i],
+[data-testid*="delete" i],
+[aria-label*="delete" i],
+[role="menuitem"][data-testid*="delete" i],
+a[href*="/settings"],
+[data-testid="settings-button"],
+[data-atlas-ui-restricted="true"] {
+	display: none !important;
+	visibility: hidden !important;
+	pointer-events: none !important;
+}
+button.__menu-item-trailing-btn[aria-label="New project"],
+button.__menu-item-trailing-btn[aria-label="Organize chats"],
+button[data-trailing-button][aria-label="New project"],
+button[data-trailing-button][aria-label="Organize chats"] {
+	display: inline-flex !important;
+	visibility: visible !important;
+	pointer-events: auto !important;
+}
+#atlas-logout-container {
+	position: fixed;
+	bottom: var(--atlas-sidebar-bottom, 0);
+	left: var(--atlas-sidebar-left, 0);
+	width: var(--atlas-sidebar-width, 0);
+	z-index: 2147483647;
+	padding: 8px 10px max(12px, env(safe-area-inset-bottom));
+	box-sizing: border-box;
+	pointer-events: none;
+}
+#atlas-logout-container[data-visible="false"] { display: none !important; }
+#atlas-logout-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	padding: 10px 14px;
+	border: 0;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #fff, #f8f8f8);
+	color: #141313;
+	box-shadow: 0 4px 15px rgb(0 0 0 / 30%);
+	cursor: pointer;
+	font: 600 14px ui-sans-serif, system-ui, sans-serif;
+	pointer-events: auto;
+}
+#atlas-logout-button:hover { transform: translateY(-2px); }
+#atlas-logout-button svg { width: 18px; height: 18px; }
+</style><script data-atlas-ui-policy-runtime="v3">(()=>{if(window.__atlasUiPolicyV3)return;window.__atlasUiPolicyV3=true;const allowed=new Set(["new project","organize chats"]),selector='[role="menuitem"],[role="button"],button',restrict=root=>{const nodes=[];if(root&&root.nodeType===Node.ELEMENT_NODE&&root.matches&&root.matches(selector))nodes.push(root);if(root&&root.querySelectorAll)root.querySelectorAll(selector).forEach(node=>nodes.push(node));nodes.forEach(node=>{if(node.closest("#atlas-logout-container"))return;const label=(node.getAttribute("aria-label")||"").trim().toLowerCase();if(allowed.has(label))return;const text=(node.textContent||"").replace(/\s+/g," ").trim().toLowerCase();if(/\b(delete|remove)\b/.test(text)||text.includes("حذف"))node.dataset.atlasUiRestricted="true"})},sidebar=()=>{const selectors=['[data-testid="sidebar"]','[data-testid="left-sidebar"]','[data-testid="conversation-sidebar"]','[data-sidebar]','aside','nav[aria-label*="chat" i]','nav[aria-label*="navigation" i]'],mobile=matchMedia("(max-width: 768px)").matches,candidates=[];selectors.forEach((value,index)=>{try{document.querySelectorAll(value).forEach(element=>{if(!(element instanceof HTMLElement)||candidates.some(item=>item.element===element))return;const rect=element.getBoundingClientRect(),style=getComputedStyle(element),visible=rect.width>=48&&rect.width<=Math.min(440,innerWidth)&&rect.height>120&&rect.right>0&&rect.left<innerWidth&&rect.bottom>0&&rect.top<innerHeight&&style.display!=="none"&&style.visibility!=="hidden"&&parseFloat(style.opacity||"1")>0;if(!visible||(mobile&&rect.width<180))return;candidates.push({element,rect,score:(selectors.length-index)*100000-Math.max(0,rect.left)*100+Math.min(rect.height,innerHeight)+Math.min(rect.width,400)})})}catch{}});candidates.sort((a,b)=>b.score-a.score);return candidates[0]||null},ensureLogout=()=>{if(!document.body)return;let container=document.getElementById("atlas-logout-container");if(!container){container=document.createElement("div");container.id="atlas-logout-container";container.innerHTML='<button id="atlas-logout-button" type="button" aria-label="خروج از سامانه"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span>خروج</span></button>';container.querySelector("button").addEventListener("click",()=>{if(confirm("آیا مطمئن هستید که می‌خواهید خارج شوید؟"))location.assign("/logout")});document.body.appendChild(container)}if(container.parentElement!==document.body)document.body.appendChild(container);const host=sidebar();if(!host){container.dataset.visible="false";return}container.dataset.visible="true";container.style.setProperty("--atlas-sidebar-left",host.rect.left+"px");container.style.setProperty("--atlas-sidebar-width",Math.max(48,Math.min(host.rect.width,innerWidth))+"px");container.style.setProperty("--atlas-sidebar-bottom",Math.max(0,innerHeight-host.rect.bottom)+"px")},start=()=>{if(!document.body)return;restrict(document.body);ensureLogout();let queued=false;const pending=new Set,schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{pending.forEach(restrict);pending.clear();ensureLogout();queued=false})};new MutationObserver(records=>{let changed=false;records.forEach(record=>{if(record.target instanceof Element&&record.target.closest("#atlas-logout-container"))return;changed=true;record.addedNodes.forEach(node=>{if(node.nodeType===Node.ELEMENT_NODE)pending.add(node)})});if(changed)schedule()}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","style","hidden","aria-expanded","aria-hidden","data-state"]});addEventListener("resize",schedule,{passive:true});document.addEventListener("transitionend",schedule,true)};document.readyState==="loading"?document.addEventListener("DOMContentLoaded",start,{once:true}):start()})();</script><script data-atlas-runtime="v3">(()=>{const h=new Set(["chatgpt.com","chat.openai.com"]),r=u=>{try{const s=typeof u==="string"?u:u instanceof URL?u.href:null;if(!s)return u;const x=new URL(s,location.href);if(!h.has(x.hostname))return u;x.protocol=x.protocol==="wss:"||x.protocol==="ws:"?(location.protocol==="https:"?"wss:":"ws:"):location.protocol;x.host=location.host;return x.href}catch{return u}};if(window.fetch){const f=window.fetch;window.fetch=new Proxy(f,{apply(t,a,g){const i=g[0];if(i instanceof Request){const n=r(i.url);if(n!==i.url)g[0]=new Request(n,i)}else g[0]=r(i);return Reflect.apply(t,a,g)}})}if(window.XMLHttpRequest){const o=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u,...a){return o.call(this,m,r(u),...a)}}if(window.WebSocket){const W=window.WebSocket;window.WebSocket=new Proxy(W,{construct(t,a,n){a[0]=r(a[0]);return Reflect.construct(t,a,n)}})}if(window.EventSource){const E=window.EventSource;window.EventSource=new Proxy(E,{construct(t,a,n){a[0]=r(a[0]);return Reflect.construct(t,a,n)}})}if(navigator.sendBeacon){const b=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=new Proxy(b,{apply(t,a,g){g[0]=r(g[0]);return Reflect.apply(t,a,g)}})}})();</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#08111f" />
+<title>آزمایشگاه جامع فصل ۵ ریاضی هشتم | بردار و مختصات</title>
+<style>
+:root{
+  --bg:#07111f; --bg2:#0b1628; --panel:rgba(12,24,43,.86); --panel2:rgba(19,34,57,.78);
+  --line:rgba(255,255,255,.10); --text:#eef5ff; --muted:#9fb0c8; --accent:#4ea1ff; --good:#22c55e;
+  --warn:#f59e0b; --danger:#fb7185; --canvas:#fbfdff; --ink:#172033; --shadow:0 20px 60px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{font-family:Tahoma,"Segoe UI",system-ui,-apple-system,sans-serif;background:radial-gradient(circle at 15% 5%,#152a49 0,#081322 36%,#050b14 100%);color:var(--text)}
+button,input,select{font:inherit}
+button{border:0;cursor:pointer;color:inherit}
+.app{height:100dvh;display:grid;grid-template-rows:auto auto 1fr;position:relative}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(5,12,22,.78);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);z-index:20}
+.brand{display:flex;align-items:center;gap:10px;min-width:max-content}
+.brand-badge{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#3b82f6,#7c3aed);box-shadow:0 8px 28px rgba(59,130,246,.28);font-size:20px}
+.brand h1{font-size:14px;margin:0;font-weight:900}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.top-actions{margin-inline-start:auto;display:flex;gap:7px}
+.icon-btn,.soft-btn{height:36px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);padding:0 11px;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.18s}
+.icon-btn:hover,.soft-btn:hover{background:rgba(255,255,255,.12);transform:translateY(-1px)}
+.icon-btn:active,.soft-btn:active{transform:translateY(0) scale(.97)}
+.modebar{display:flex;gap:7px;padding:8px 12px;overflow:auto;background:rgba(8,17,31,.72);border-bottom:1px solid var(--line);scrollbar-width:none;z-index:19}
+.modebar::-webkit-scrollbar{display:none}.mode-btn{white-space:nowrap;padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);font-size:11px;color:#cbd7e8;transition:.18s}
+.mode-btn.active{background:linear-gradient(135deg,rgba(78,161,255,.28),rgba(124,58,237,.25));border-color:rgba(115,170,255,.65);color:white;box-shadow:0 8px 25px rgba(35,107,220,.18)}
+.workspace{min-height:0;display:grid;grid-template-columns:280px 1fr 292px;gap:10px;padding:10px}
+.panel{min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);backdrop-filter:blur(18px);overflow:auto;padding:12px}
+.panel::-webkit-scrollbar{width:6px}.panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
+.section{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);border-radius:17px;padding:11px;margin-bottom:10px}
+.section:last-child{margin-bottom:0}.section-title{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:900;margin-bottom:9px;color:#dfe9f8}
+.help-note{font-size:10px;line-height:1.8;color:var(--muted)}
+.vec-card{border-radius:15px;padding:9px;margin-bottom:8px;border:1px solid rgba(255,255,255,.08);background:rgba(4,10,18,.22)}
+.vec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}.vec-name{font-size:12px;font-weight:900;display:flex;align-items:center;gap:7px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.sum-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.sum-actions button{border:1px solid var(--line);background:rgba(255,255,255,.055);padding:8px 7px;border-radius:11px;font:800 10px Tahoma;color:var(--text);cursor:pointer}.sum-actions button.primary-add{background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border-color:transparent}.sum-actions button:disabled{opacity:.38;cursor:not-allowed}.extra-vectors{display:grid;gap:8px;margin-top:9px}.extra-vectors .vec-card{margin:0}.vector-count{font-size:9px;color:var(--muted);margin-top:7px;text-align:center}.stage-note{font-size:9px;color:var(--muted);line-height:1.7;margin-top:7px}
+.xy-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.field{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:6px 8px}.field label{display:block;font-size:9px;color:var(--muted);margin-bottom:3px}.field input{width:100%;background:transparent;border:0;outline:0;color:white;font-weight:800;text-align:center;direction:ltr;font-size:13px}
+.slider-row{display:grid;grid-template-columns:60px 1fr 38px;align-items:center;gap:7px;font-size:10px}.slider-row input[type=range]{width:100%;accent-color:#60a5fa}.slider-value{text-align:center;background:rgba(0,0,0,.22);padding:4px;border-radius:9px;font-weight:800;direction:ltr}
+.toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.toggle{display:flex;align-items:center;gap:7px;padding:8px;border-radius:12px;background:rgba(255,255,255,.045);font-size:10px;cursor:pointer}.toggle input{accent-color:#3b82f6}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.mini-btn{padding:8px;border-radius:12px;background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.08);font-size:10px}.mini-btn:hover{background:rgba(255,255,255,.11)}
+.canvas-shell{min-width:0;min-height:0;position:relative;border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,.09);box-shadow:var(--shadow);background:#eaf0f7}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab;background:var(--canvas)}canvas.dragging{cursor:grabbing}
+.canvas-tools{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:6px;z-index:4}.canvas-tools button{width:36px;height:36px;border-radius:12px;background:rgba(11,20,35,.88);border:1px solid rgba(255,255,255,.13);box-shadow:0 8px 22px rgba(0,0,0,.2)}
+.mode-chip{position:absolute;right:12px;top:12px;z-index:4;background:rgba(11,20,35,.88);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:8px 11px;font-size:10px;max-width:56%;box-shadow:0 8px 22px rgba(0,0,0,.2)}.mode-chip b{color:#fff}.mode-chip span{color:#aebdd1}
+.drag-hint{position:absolute;right:12px;bottom:12px;background:rgba(11,20,35,.84);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:7px 10px;font-size:9px;color:#c5d2e3;pointer-events:none}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.metric{padding:9px;border-radius:13px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.07)}.metric small{display:block;color:var(--muted);font-size:9px;margin-bottom:4px}.metric b{font-size:13px;direction:ltr;display:block;text-align:center}
+.eq-card{border-radius:15px;padding:10px;background:linear-gradient(145deg,rgba(78,161,255,.10),rgba(124,58,237,.08));border:1px solid rgba(102,160,255,.2);font-size:11px;line-height:2}.eq{direction:ltr;text-align:center;font-family:"Segoe UI",Tahoma,sans-serif;font-weight:800;color:#fff;word-break:break-word}.eq-sub{color:#a9bad0;font-size:9px;text-align:center;margin-top:3px}
+.status-card{display:flex;gap:9px;align-items:flex-start;padding:10px;border-radius:15px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.18)}.status-icon{font-size:19px}.status-card b{font-size:11px}.status-card p{margin:3px 0 0;color:#b6c5d8;font-size:9px;line-height:1.7}
+.objective-list{display:grid;gap:6px}.objective{display:flex;gap:7px;align-items:flex-start;font-size:9px;line-height:1.65;color:#bdcadb}.objective i{font-style:normal;color:#72b5ff;margin-top:1px}
+.challenge{background:linear-gradient(145deg,rgba(245,158,11,.09),rgba(236,72,153,.06));border:1px solid rgba(245,158,11,.18)}.challenge-q{font-size:11px;line-height:1.9;font-weight:800;margin-bottom:8px}.answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.answer-grid input{width:100%;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.1);border-radius:11px;color:white;padding:8px;text-align:center;outline:0;direction:ltr}.primary{width:100%;margin-top:8px;padding:9px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);font-weight:900}.challenge-feedback{margin-top:7px;font-size:9px;line-height:1.7;min-height:16px}.score{display:flex;justify-content:space-between;margin-bottom:8px;font-size:9px;color:#bbc7d8}.score b{color:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:6px}.legend span{font-size:9px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.055);display:flex;align-items:center;gap:5px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(1,6,13,.72);backdrop-filter:blur(10px);z-index:100;display:none;align-items:center;justify-content:center;padding:18px}.modal-backdrop.open{display:flex}.modal{width:min(760px,96vw);max-height:88vh;overflow:auto;background:#0c192c;border:1px solid rgba(255,255,255,.12);border-radius:26px;box-shadow:0 40px 100px rgba(0,0,0,.5);padding:18px}.modal h2{margin:0 0 8px;font-size:18px}.modal p{color:#b9c6d8;line-height:1.9;font-size:11px}.guide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}.guide-item{padding:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:15px}.guide-item b{font-size:11px}.guide-item p{margin:4px 0 0;font-size:9px}.close-modal{float:left;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.08)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:130;background:#0e1d31;border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:9px 14px;font-size:10px;box-shadow:0 15px 40px rgba(0,0,0,.35);transition:.22s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.mobile-panels{display:none}
+@media(max-width:1100px){.workspace{grid-template-columns:220px 1fr 250px}.brand small{display:none}}
+@media(max-width:900px){
+ .app{grid-template-rows:auto auto 1fr auto}.topbar{padding:8px 9px}.brand h1{font-size:12px}.brand-badge{width:34px;height:34px;border-radius:11px}.top-actions .text{display:none}.modebar{padding:7px 8px}.mode-btn{font-size:10px;padding:7px 11px}
+ .workspace{display:block;padding:7px}.left-panel{display:none}.canvas-shell{height:100%;border-radius:19px}.mode-chip{max-width:67%;font-size:9px}.drag-hint{display:none}
+ .mobile-panels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:7px 9px;background:rgba(5,12,22,.9);border-top:1px solid var(--line);z-index:20}.mobile-panels button{padding:9px 4px;border-radius:12px;background:rgba(255,255,255,.07);font-size:10px}
+ .modal{padding:14px;border-radius:20px}.guide-grid{grid-template-columns:1fr}
+}
+@media(max-width:420px){.top-actions #resetAllBtn{display:none}.brand h1{max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.canvas-tools{left:8px;top:8px}.canvas-tools button{width:34px;height:34px}.mode-chip{right:8px;top:8px}}
+
+/* Responsive and accessible interaction */
+button{touch-action:manipulation;min-height:44px}button:focus-visible,input:focus-visible{outline:3px solid #fbbf24;outline-offset:3px}
+input[type=number],.answer-grid input{font-size:16px;min-height:38px}.field label{font-size:11px}.help-note,.eq-sub,.objective,.status-card p,.score,.challenge-feedback{font-size:11px}.toggle{min-height:44px;font-size:12px}.toggle input{width:18px;height:18px;flex-shrink:0}.mode-btn{font-size:12px;min-height:44px}.panel{overscroll-behavior:contain}.modal{max-height:90dvh;overscroll-behavior:contain}.close-modal{min-width:44px;position:sticky;top:0;z-index:5}.modal-backdrop{padding:12px}.canvas-tools button{width:44px;height:44px}.canvas-tools{top:auto;bottom:14px}.mode-chip{font-size:11px;max-width:calc(100% - 24px);pointer-events:none}.drag-hint{max-width:75%}.toast{max-width:92vw;width:max-content;text-align:center}.challenge-q{unicode-bidi:plaintext}.mobile-panels{padding-bottom:max(8px,env(safe-area-inset-bottom))}.topbar{padding-top:max(8px,env(safe-area-inset-top))}.metric b,.eq{unicode-bidi:isolate}.mobile-summary{display:none}
+@media(max-width:900px){
+ .workspace>.right-panel,.workspace>.left-panel{display:none}.workspace{min-height:0}.brand{min-width:0;flex:1}.brand h1{font-size:12px;line-height:1.6;max-width:none;white-space:normal}.brand-badge{flex-shrink:0}.topbar{gap:5px}.top-actions{gap:4px;flex-shrink:0}.top-actions button{width:44px;padding:0}.top-actions #resetAllBtn{display:inline-flex}.brand small{display:none}.brand-badge{display:none}.modebar{scroll-snap-type:x proximity}.mode-btn{scroll-snap-align:center;font-size:12px}.mobile-panels button{font-size:12px;min-height:48px}.mobile-summary{display:block;position:absolute;bottom:12px;right:10px;background:#0b1423e8;color:white;border-radius:12px;padding:9px;font-size:12px;max-width:calc(100% - 76px);pointer-events:none;direction:ltr;overflow-wrap:anywhere}.canvas-tools{left:10px;bottom:12px}.mode-chip{top:10px;right:10px;padding:8px 10px}.mode-chip span{font-size:10px}.panel{padding:8px;border-radius:14px}.section-title,.vec-name{font-size:13px}.section{padding:11px}.mini-btn,.sum-actions button{font-size:12px}.modal{width:min(600px,100%);max-height:92dvh;padding:10px}.modal .panel{border:0;box-shadow:none;background:transparent;max-height:none!important;overflow:visible}.guide-item p,.modal p{font-size:12px}.challenge-q{font-size:14px}.slider-row{font-size:12px;grid-template-columns:65px 1fr 40px}.slider-row input{min-height:44px}.mobile-panels{gap:5px;padding-inline:7px}.metric small{font-size:11px}.eq-card{font-size:13px}
+}
+@media(max-height:500px) and (max-width:900px){.topbar{padding-block:3px}.modebar{padding-block:3px}.mode-btn{min-height:38px}.mobile-panels{padding-block:3px}.mobile-panels button{min-height:40px}.mode-chip span{display:none}.canvas-tools{flex-direction:row}.mobile-summary{bottom:8px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="brand-badge">↗</div><div><h1>آزمایشگاه جامع بردار و مختصات</h1><small>فصل ۵ ریاضی هشتم • طراحی آموزشی تعاملی</small></div></div>
+    <div class="top-actions">
+      <button class="soft-btn" id="guideBtn">❔ <span class="text">راهنما</span></button>
+      <button class="soft-btn" id="animateBtn">▶ <span class="text">نمایش مرحله‌ای</span></button>
+      <button class="soft-btn" id="resetAllBtn">↺ <span class="text">شروع دوباره</span></button>
+    </div>
+  </header>
+
+  <nav class="modebar" id="modeBar">
+    <button class="mode-btn active" data-mode="free">آزمایش آزاد</button>
+    <button class="mode-btn" data-mode="sumTriangle">جمع • روش مثلثی</button>
+    <button class="mode-btn" data-mode="sumParallelogram">جمع • متوازی‌الاضلاع</button>
+    <button class="mode-btn" data-mode="subtract">تفریق بردارها</button>
+    <button class="mode-btn" data-mode="scalar">ضرب عدد در بردار</button>
+    <button class="mode-btn" data-mode="compare">هم‌سنگ و قرینه</button>
+    <button class="mode-btn" data-mode="coordinates">مختصات بردار</button>
+    <button class="mode-btn" data-mode="translation">انتقال با بردار</button>
+    <button class="mode-btn" data-mode="challenge">چالش فصل ۵</button>
+  </nav>
+
+  <main class="workspace">
+    <aside class="panel left-panel" id="leftPanel">
+      <div class="section">
+        <div class="section-title"><span>کنترل بردارها</span><span>ابتدا، انتها یا بدنه را بکش</span></div>
+        <div class="vec-card" id="cardA">
+          <div class="vec-head"><div class="vec-name"><span class="dot" style="background:#2563eb"></span>بردار A</div><span id="magA" class="help-note">|A|=3.6</span></div>
+          <div class="xy-grid">
+            <div class="field"><label>مؤلفه x</label><input id="Ax" type="number" step="0.5" value="3"></div>
+            <div class="field"><label>مؤلفه y</label><input id="Ay" type="number" step="0.5" value="2"></div>
+          </div>
+        </div>
+        <div class="vec-card" id="cardB">
+          <div class="vec-head"><div class="vec-name"><span class="dot" style="background:#e11d48"></span>بردار B</div><span id="magB" class="help-note">|B|=3.6</span></div>
+          <div class="xy-grid">
+            <div class="field"><label>مؤلفه x</label><input id="Bx" type="number" step="0.5" value="-2"></div>
+            <div class="field"><label>مؤلفه y</label><input id="By" type="number" step="0.5" value="3"></div>
+          </div>
+        </div>
+        <div id="multiVectorControls" style="display:none">
+          <div class="sum-actions">
+            <button class="primary-add" id="addVectorBtn">＋ افزودن بردار</button>
+            <button id="removeVectorBtn">− حذف آخرین بردار</button>
+          </div>
+          <div class="vector-count" id="vectorCount">۲ بردار فعال</div>
+          <div class="extra-vectors" id="extraVectors"></div>
+          <div class="stage-note" id="multiVectorNote">در جمع چندبرداری، هر بردار جدید به برآیند مرحلهٔ قبل اضافه می‌شود.</div>
+        </div>
+      </div>
+
+      <div class="section" id="endpointSection">
+<div class="section-title">مکان ابتدا و انتهای بردار</div>
+<label for="endpointVector">انتخاب بردار</label><select id="endpointVector" style="width:100%;min-height:44px;background:#14243c;color:white;border:1px solid #63758e;border-radius:10px;margin:8px 0"></select>
+<div class="xy-grid">
+<div class="field"><label for="startX">ابتدا: x</label><input id="startX" type="number" step="0.5"></div><div class="field"><label for="startY">ابتدا: y</label><input id="startY" type="number" step="0.5"></div>
+<div class="field"><label for="endX">انتها: x</label><input id="endX" type="number" step="0.5"></div><div class="field"><label for="endY">انتها: y</label><input id="endY" type="number" step="0.5"></div>
+</div><p class="help-note">دایرهٔ توخالی = ابتدا؛ دایرهٔ پُر = انتها. هرکدام را مستقل بکش. کشیدن بدنه، کل بردار را بدون تغییر مؤلفه‌ها جابه‌جا می‌کند. در هم‌پوشانی، بردار انتخاب‌شده اولویت دارد.</p>
+<div class="eq" id="endpointEquation"></div><p class="help-note" id="constructionNote"></p>
+</div>
+<div class="section" id="scalarSection" style="display:none">
+        <div class="section-title"><span>ضریب عددی</span><span>kA</span></div>
+        <div class="slider-row"><span>ضریب k</span><input id="scalarRange" type="range" min="-4" max="4" step="0.5" value="2"><span class="slider-value" id="scalarValue">2</span></div>
+      </div>
+
+      <div class="section" id="pointSection" style="display:none">
+        <div class="section-title"><span>دو نقطه P و Q</span><span>Q − P</span></div>
+        <div class="xy-grid">
+          <div class="field"><label>P(x)</label><input id="Px" type="number" step="0.5" value="-3"></div>
+          <div class="field"><label>P(y)</label><input id="Py" type="number" step="0.5" value="-2"></div>
+          <div class="field"><label>Q(x)</label><input id="Qx" type="number" step="0.5" value="2"></div>
+          <div class="field"><label>Q(y)</label><input id="Qy" type="number" step="0.5" value="2"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span>نمایش</span><span>ابزار دیداری</span></div>
+        <div class="toggle-grid">
+          <label class="toggle"><input id="gridToggle" type="checkbox" checked>شبکه</label>
+          <label class="toggle"><input id="axesToggle" type="checkbox" checked>محورها</label>
+          <label class="toggle"><input id="compToggle" type="checkbox" checked>مؤلفه‌ها</label>
+          <label class="toggle"><input id="valueToggle" type="checkbox" checked>مقادیر</label>
+          <label class="toggle"><input id="snapToggle" type="checkbox" checked>جذب به نیم‌واحد</label>
+          <label class="toggle"><input id="unitToggle" type="checkbox">بردارهای i و j</label>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span>آزمایش‌های آماده</span><span>شروع سریع</span></div>
+        <div class="preset-grid">
+          <button class="mini-btn" data-preset="same">دو بردار هم‌سنگ</button>
+          <button class="mini-btn" data-preset="opposite">دو بردار قرینه</button>
+          <button class="mini-btn" data-preset="zero">برآیند صفر</button>
+          <button class="mini-btn" data-preset="perp">دو بردار عمود</button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="canvas-shell" id="canvasShell">
+      <canvas id="labCanvas" aria-label="صفحه مختصات تعاملی بردارها"></canvas>
+      <div class="mobile-summary" id="mobileSummary" aria-live="polite"></div><div class="canvas-tools">
+        <button id="zoomIn" title="بزرگ‌نمایی">＋</button>
+        <button id="zoomOut" title="کوچک‌نمایی">−</button>
+        <button id="homeView" title="نمایش همهٔ بردارها">⌂</button>
+      </div>
+      <div class="mode-chip" id="modeChip"><b>آزمایش آزاد</b><br><span>ابتدا و انتهای بردارها را مستقل بکش.</span></div>
+      <div class="drag-hint">🖱️ کشیدن نقطه = تغییر بردار • کشیدن فضای خالی = جابه‌جایی صفحه • چرخ ماوس = زوم</div>
+    </section>
+
+    <aside class="panel right-panel" id="rightPanel">
+      <div class="section">
+        <div class="section-title"><span>داشبورد ریاضی</span><span>به‌روزرسانی زنده</span></div>
+        <div class="metric-grid">
+          <div class="metric"><small>A</small><b id="metricA">(3, 2)</b></div>
+          <div class="metric"><small>B</small><b id="metricB">(-2, 3)</b></div>
+          <div class="metric"><small>برآیند/خروجی</small><b id="metricR">(1, 5)</b></div>
+          <div class="metric"><small>اندازه خروجی</small><b id="metricMag">5.10</b></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span>رابطهٔ فعال</span><span>فرمول مفهومی</span></div>
+        <div class="eq-card"><div class="eq" id="equation">R = A + B = (1, 5)</div><div class="eq-sub" id="equationSub">مؤلفه‌های هم‌نام را با هم جمع می‌کنیم.</div></div>
+      </div>
+
+      <div class="section">
+        <div class="status-card"><div class="status-icon" id="statusIcon">💡</div><div><b id="statusTitle">مشاهده کن</b><p id="statusText">با تغییر هر مؤلفه، طول و جهت بردار و خروجی به‌صورت هم‌زمان تغییر می‌کند.</p></div></div>
+      </div>
+
+      <div class="section challenge" id="challengeBox" style="display:none">
+        <div class="score"><span>امتیاز: <b id="scoreVal">0</b></span><span>پیاپی: <b id="streakVal">0</b></span></div>
+        <div class="challenge-q" id="challengeQ">...</div>
+        <div class="answer-grid"><input id="ansX" inputmode="decimal" placeholder="x"><input id="ansY" inputmode="decimal" placeholder="y"></div>
+        <button class="primary" id="checkAnswer">بررسی پاسخ</button>
+        <div class="challenge-feedback" id="challengeFeedback"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title"><span>اهداف فصل ۵</span><span>پوشش کامل</span></div>
+        <div class="objective-list">
+          <div class="objective"><i>●</i><span>خواندن و نوشتن مختصات بردار و تشخیص جهت آن</span></div>
+          <div class="objective"><i>●</i><span>شناخت بردارهای هم‌سنگ و بردار قرینه</span></div>
+          <div class="objective"><i>●</i><span>جمع بردارها به روش مثلثی، متوازی‌الاضلاع و مختصاتی</span></div>
+          <div class="objective"><i>●</i><span>تفریق به‌صورت جمع با بردار قرینه و ضرب عدد در بردار</span></div>
+          <div class="objective"><i>●</i><span>به‌دست آوردن بردار بین دو نقطه و کار با i و j</span></div>
+          <div class="objective"><i>●</i><span>درک انتقال شکل به کمک یک بردار روی صفحه مختصات</span></div>
+        </div>
+      </div>
+
+      <div class="section"><div class="section-title"><span>راهنمای رنگ‌ها</span></div><div class="legend"><span><i class="dot" style="background:#2563eb"></i>A</span><span><i class="dot" style="background:#e11d48"></i>B</span><span><i class="dot" style="background:#111827"></i>خروجی</span><span><i class="dot" style="background:#10b981"></i>انتقال/کمکی</span></div></div>
+    </aside>
+  </main>
+
+  <div class="mobile-panels">
+    <button id="mobileControls">⚙ کنترل‌ها</button><button id="mobileInfo">∑ داشبورد</button><button id="mobileChallenge">🎯 چالش</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="guideModal"><div class="modal"><button class="close-modal" data-close="guideModal">×</button><h2>راهنمای آزمایشگاه فصل ۵</h2><p>روی موبایل با یک انگشت سر بردار را بکش یا صفحه را جابه‌جا کن؛ با دو انگشت بزرگ‌نمایی کن. دکمهٔ خانه همهٔ بردارها را در قاب جا می‌دهد. کنترل‌ها، داشبورد و چالش از نوار پایین در دسترس‌اند. این محیط برای «دیدن» روابط برداری ساخته شده است. ابتدا و انتهای بردارها و نقاط را مستقل روی صفحه بکش؛ مؤلفهٔ بردار برابر مختصات انتها منهای ابتداست. با کشیدن بدنه، هر دو نقطه با هم جابه‌جا می‌شوند و مؤلفه‌ها ثابت می‌مانند؛ هر تغییر فوراً در مختصات، برآیند و رابطهٔ جبری دیده می‌شود.</p><div class="guide-grid">
+<div class="guide-item"><b>۱) مختصات و مؤلفه‌ها</b><p>بردار را بکش و ببین تغییر افقی همان مؤلفه x و تغییر عمودی همان مؤلفه y است.</p></div>
+<div class="guide-item"><b>۲) جمع بردارها</b><p>در روش مثلثی تا هشت بردار به‌صورت سر‌به‌ته قرار می‌گیرند. در روش متوازی‌الاضلاع، ابتدا دو بردار اول جمع می‌شوند و سپس هر بردار تازه با برآیند مرحلهٔ قبل جمع می‌شود.</p></div>
+<div class="guide-item"><b>۳) قرینه و تفریق</b><p>بردار −B همان اندازهٔ B و جهت مخالف دارد؛ بنابراین A−B را می‌توان A+(−B) دید.</p></div>
+<div class="guide-item"><b>۴) ضرب عددی</b><p>برای بردار ناصفر، ضریب مثبت جهت را حفظ و ضریب منفی آن را برعکس می‌کند. اندازه در قدر مطلق ضریب ضرب می‌شود؛ ضریب صفر بردار صفر می‌سازد و بردار صفر جهت معینی ندارد.</p></div>
+<div class="guide-item"><b>۵) دو نقطه و یک بردار</b><p>برای بردار PQ، مختصات نقطهٔ شروع را از مختصات نقطهٔ پایان کم کن: Q−P.</p></div>
+<div class="guide-item"><b>۶) انتقال و تمرین</b><p>در انتقال، همهٔ رأس‌های شکل به یک اندازه و در یک جهت جابه‌جا می‌شوند. سپس در «چالش فصل ۵» مهارتت را محک بزن.</p></div>
+</div><p style="margin-bottom:0">پیشنهاد کلاسی: ابتدا «نمایش مقادیر» را خاموش کن تا دانش‌آموز پیش‌بینی کند؛ سپس آن را روشن کن و پیش‌بینی را بررسی کنید.</p></div></div>
+
+<div class="modal-backdrop" id="mobileModal"><div class="modal"><button class="close-modal" data-close="mobileModal">×</button><div id="mobileModalContent"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const parseNumber=v=>String(v).trim()===''?NaN:Number(String(v).trim().replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/−/g,'-').replace(/[٫,]/g,'.'));
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const near=(a,b,eps=.001)=>Math.abs(a-b)<eps;
+const fmt=n=>{ const v=Math.abs(n)<1e-9?0:n; return Number.isInteger(v)?String(v):String(+v.toFixed(2)); };
+const vfmt=v=>`(${fmt(v.x)}, ${fmt(v.y)})`;
+const mag=v=>Math.hypot(v.x,v.y);
+const add=(a,b)=>({x:a.x+b.x,y:a.y+b.y}); const sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y}); const mul=(a,k)=>({x:a.x*k,y:a.y*k});
+
+const state={
+  starts:Array.from({length:8},()=>({x:0,y:0})), selectedVector:0,
+  mode:'free', A:{x:3,y:2}, B:{x:-2,y:3}, extraVectors:[], P:{x:-3,y:-2}, Q:{x:2,y:2}, scalar:2,
+  showGrid:true,showAxes:true,showComponents:true,showValues:true,snap:true,showUnits:false,
+  zoom:42, panX:0,panY:0, dpr:1, dragging:null, panning:false, last:{x:0,y:0},
+  animating:false,animT:1,score:0,streak:0,challenge:null
+};
+const modeMeta={
+ free:['آزمایش آزاد','دایرهٔ توخالی: ابتدا • دایرهٔ پُر: انتها • بدنه: جابه‌جایی کل بردار'],
+ sumTriangle:['جمع بردارها • روش مثلثی','بردارهای A، B، C و … را سر به ته بچین؛ برآیند از شروع اولین تا پایان آخرین بردار است.'],
+ sumParallelogram:['جمع بردارها • متوازی‌الاضلاع','جمع چندبرداری مرحله‌ای: ابتدا A+B، سپس برآیند با C، بعد با D و … .'],
+ subtract:['تفریق بردارها','A−B را به شکل A+(−B) مشاهده کن.'],
+ scalar:['ضرب عدد در بردار','k جهت و اندازهٔ بردار A را تغییر می‌دهد؛ مؤلفه‌ها نیز در k ضرب می‌شوند.'],
+ compare:['هم‌سنگ و قرینه','A و B را تغییر بده و رابطهٔ طول، جهت و مؤلفه‌ها را بررسی کن.'],
+ coordinates:['مختصات بردار PQ','دو نقطه P و Q را بکش؛ مختصات بردار از Q−P به دست می‌آید.'],
+ translation:['انتقال با بردار','یک شکل را با بردار A منتقل کن و جابه‌جایی یکسان همهٔ رأس‌ها را ببین.'],
+ challenge:['چالش فصل ۵','سؤال‌های تصادفی از جمع، قرینه، ضرب عددی، مختصات و بردار مجهول.']
+};
+
+let challengeTimer=null,animationToken=0;
+const canvas=$('#labCanvas'), shell=$('#canvasShell'), ctx=canvas.getContext('2d');
+function resize(){ const r=shell.getBoundingClientRect(); state.dpr=Math.min(2,window.devicePixelRatio||1); canvas.width=Math.max(1,Math.floor(r.width*state.dpr)); canvas.height=Math.max(1,Math.floor(r.height*state.dpr)); ctx.setTransform(state.dpr,0,0,state.dpr,0,0); draw(); }
+function size(){return {w:canvas.width/state.dpr,h:canvas.height/state.dpr}}
+function origin(){const {w,h}=size();return {x:w/2+state.panX,y:h/2+state.panY}}
+function W2S(p){const o=origin();return {x:o.x+p.x*state.zoom,y:o.y-p.y*state.zoom}}
+function S2W(p){const o=origin();return {x:(p.x-o.x)/state.zoom,y:(o.y-p.y)/state.zoom}}
+function snap(n){return state.snap?Math.round(n*2)/2:+n.toFixed(2)}
+
+function line(a,b,color='#334155',lw=1,dash=[]){const A=W2S(a),B=W2S(b);ctx.save();ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.setLineDash(dash);ctx.stroke();ctx.restore()}
+function arrow(a,b,color,lw=3,label='',alpha=1,progress=1){
+ const A=W2S(a),Bt=W2S(b), B={x:A.x+(Bt.x-A.x)*progress,y:A.y+(Bt.y-A.y)*progress};
+ const dx=B.x-A.x,dy=B.y-A.y,L=Math.hypot(dx,dy); if(L<1){if(progress>=1&&mag(sub(b,a))<1e-9){ctx.save();ctx.fillStyle=color;ctx.beginPath();ctx.arc(A.x,A.y,4,0,Math.PI*2);ctx.fill();if(label){ctx.font='bold 12px Tahoma';ctx.textAlign='center';ctx.fillText(label+' = 0',A.x,A.y-16);}ctx.restore()}return;}
+ ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=lw;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+ const ang=Math.atan2(dy,dx), head=clamp(8+lw*1.2,9,14);ctx.beginPath();ctx.moveTo(B.x,B.y);ctx.lineTo(B.x-head*Math.cos(ang-.48),B.y-head*Math.sin(ang-.48));ctx.lineTo(B.x-head*Math.cos(ang+.48),B.y-head*Math.sin(ang+.48));ctx.closePath();ctx.fill();
+ if(label&&progress>.75){ctx.font='800 12px Tahoma';ctx.textAlign='center';ctx.textBaseline='middle';const mx=(A.x+B.x)/2,my=(A.y+B.y)/2;ctx.fillStyle='rgba(255,255,255,.96)';ctx.strokeStyle='rgba(15,23,42,.16)';ctx.lineWidth=5;ctx.strokeText(label,mx+8*Math.sin(ang),my-8*Math.cos(ang));ctx.fillStyle=color;ctx.fillText(label,mx+8*Math.sin(ang),my-8*Math.cos(ang));}
+ ctx.restore();
+}
+function handle(p,color,label){const s=W2S(p);ctx.save();ctx.beginPath();ctx.arc(s.x,s.y,9,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.92)';ctx.shadowColor='rgba(0,0,0,.16)';ctx.shadowBlur=5;ctx.fill();ctx.shadowBlur=0;ctx.lineWidth=2;ctx.strokeStyle=color;ctx.stroke();ctx.restore()}
+function point(p,color,label){const s=W2S(p);ctx.save();ctx.beginPath();ctx.arc(s.x,s.y,6,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='white';ctx.stroke();ctx.font='900 11px Tahoma';ctx.fillStyle='#111827';ctx.textAlign='right';ctx.fillText(`${label} ${state.showValues?vfmt(p):''}`,s.x-10,s.y-10);ctx.restore()}
+function textAt(p,text,color='#334155',align='center',size=11){const s=W2S(p);ctx.save();ctx.font=`800 ${size}px Tahoma`;ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(text,s.x,s.y);ctx.restore()}
+function components(start,v,color){if(!state.showComponents)return;const px={x:start.x+v.x,y:start.y}, py={x:start.x+v.x,y:start.y+v.y};line(start,px,color,1.4,[5,5]);line(px,py,color,1.4,[5,5]);if(state.showValues){textAt({x:start.x+v.x/2,y:start.y-.28},`x=${fmt(v.x)}`,color,'center',9);textAt({x:start.x+v.x+.3,y:start.y+v.y/2},`y=${fmt(v.y)}`,color,'left',9)}}
+function drawUnits(){if(!state.showUnits)return;arrow({x:0,y:0},{x:1,y:0},'#16a34a',2,'i',.9);arrow({x:0,y:0},{x:0,y:1},'#f59e0b',2,'j',.9);}
+function drawGrid(){
+ const {w,h}=size(), o=origin();ctx.clearRect(0,0,w,h);ctx.fillStyle='#fbfdff';ctx.fillRect(0,0,w,h);
+ if(state.showGrid){const step=state.zoom;ctx.save();for(let x=o.x%step;x<w;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.strokeStyle='rgba(73,94,122,.12)';ctx.lineWidth=1;ctx.stroke()}for(let y=o.y%step;y<h;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.strokeStyle='rgba(73,94,122,.12)';ctx.lineWidth=1;ctx.stroke()}ctx.restore()}
+ if(state.showAxes){ctx.save();ctx.strokeStyle='#5a6678';ctx.fillStyle='#5a6678';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(w,o.y);ctx.moveTo(o.x,0);ctx.lineTo(o.x,h);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w-8,o.y-4);ctx.lineTo(w,o.y);ctx.lineTo(w-8,o.y+4);ctx.stroke();ctx.beginPath();ctx.moveTo(o.x-4,8);ctx.lineTo(o.x,0);ctx.lineTo(o.x+4,8);ctx.stroke();
+  const tick=Math.max(1,Math.ceil(35/state.zoom));ctx.font='10px Tahoma';ctx.fillStyle='#7b8798';ctx.textAlign='center';const minX=Math.floor(-o.x/state.zoom), maxX=Math.ceil((w-o.x)/state.zoom);for(let i=minX;i<=maxX;i++){if(i===0||i%tick!==0)continue;const s=W2S({x:i,y:0});ctx.fillText(i,s.x,o.y+15)}const minY=Math.floor((o.y-h)/state.zoom), maxY=Math.ceil(o.y/state.zoom);ctx.textAlign='left';for(let i=minY;i<=maxY;i++){if(i===0||i%tick!==0)continue;const s=W2S({x:0,y:i});ctx.fillText(i,o.x+6,s.y+3)}ctx.fillText('0',o.x+5,o.y+14);ctx.fillText('x',w-16,o.y-9);ctx.fillText('y',o.x+8,14);ctx.restore()}
+ drawUnits();
+}
+
+const col={A:'#2563eb',B:'#e11d48',R:'#111827',G:'#10b981',M:'#7c3aed',O:'#f59e0b'};
+const vectorPalette=['#2563eb','#e11d48','#7c3aed','#10b981','#f59e0b','#0891b2','#db2777','#65a30d'];
+const vectorLabels='ABCDEFGH'.split('');
+function sumVectors(){return [state.A,state.B,...state.extraVectors]}
+function sumAll(vs=sumVectors()){return vs.reduce((r,v)=>add(r,v),{x:0,y:0})}
+function vectorColor(i){return vectorPalette[i%vectorPalette.length]}
+function vectorLabel(i){return vectorLabels[i]||`V${i+1}`}
+function cumulativeBefore(i,vs=sumVectors()){let r={x:0,y:0};for(let k=0;k<i;k++)r=add(r,vs[k]);return r}
+function progressFor(step){if(!state.animating)return 1;const n=['sumTriangle','sumParallelogram'].includes(state.mode)?sumVectors().length+1:4;return clamp(state.animT*n-step,0,1)}
+function drawValueTag(p,text,color){if(!state.showValues)return;const s=W2S(p);ctx.save();ctx.font='800 10px Tahoma';const pad=6,w=ctx.measureText(text).width+pad*2;ctx.fillStyle='rgba(255,255,255,.94)';ctx.strokeStyle='rgba(15,23,42,.10)';ctx.lineWidth=1;ctx.beginPath();roundRect(ctx,s.x-w/2,s.y-12,w,22,9);ctx.fill();ctx.stroke();ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,s.x,s.y-1);ctx.restore()}
+function roundRect(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+
+
+function editableIndices(){return ['scalar','translation'].includes(state.mode)?[0]:['sumTriangle','sumParallelogram'].includes(state.mode)?sumVectors().map((_,i)=>i):[0,1]}
+function startOf(i){return state.starts[i]}
+function endOf(i){return add(startOf(i),sumVectors()[i])}
+function setEndpoint(i,which,p){const v=sumVectors()[i],start=startOf(i),end=endOf(i);if(which==='start'){state.starts[i]={...p};v.x=end.x-p.x;v.y=end.y-p.y}else{v.x=p.x-start.x;v.y=p.y-start.y}}
+function endpointUI(){const show=!['coordinates','challenge'].includes(state.mode);$('#endpointSection').style.display=show?'block':'none';if(!show)return;
+const ids=editableIndices();if(!ids.includes(state.selectedVector))state.selectedVector=ids[0];const sel=$('#endpointVector');const signature=ids.join(',');if(sel.dataset.signature!==signature){sel.innerHTML=ids.map(i=>`<option value="${i}">بردار ${vectorLabel(i)}</option>`).join('');sel.dataset.signature=signature}sel.value=state.selectedVector;
+const a=startOf(state.selectedVector),b=endOf(state.selectedVector);for(const [id,n] of [['startX',a.x],['startY',a.y],['endX',b.x],['endY',b.y]])$('#'+id).value=fmt(n);
+$('#endpointEquation').textContent=`${vectorLabel(state.selectedVector)} = ${vfmt(b)} − ${vfmt(a)} = ${vfmt(sub(b,a))}`;
+$('#constructionNote').textContent=['sumTriangle','sumParallelogram','subtract'].includes(state.mode)?'محل فعلی بردار A نقطهٔ شروع ساخت است. برآیند از ابتدای A رسم می‌شود؛ فقط اگر لازم باشد، نسخهٔ هم‌سنگِ بردارهای دیگر برای تکمیل روش حل جابه‌جا می‌شود. علامت ′ نسخهٔ هم‌سنگ را نشان می‌دهد.':'';
+}
+function drawEditable(i){const a=startOf(i),b=endOf(i),c=vectorColor(i),lab=vectorLabel(i);components(a,sumVectors()[i],c);arrow(a,b,c,3,lab,1,progressFor(0));
+const A=W2S(a),B=W2S(b);ctx.save();ctx.strokeStyle=c;ctx.fillStyle='white';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(A.x,A.y,9,0,2*Math.PI);ctx.fill();ctx.stroke();ctx.beginPath();ctx.fillStyle=c;ctx.arc(B.x,B.y,7,0,2*Math.PI);ctx.fill();ctx.restore();
+if(state.showValues){drawValueTag({x:b.x,y:b.y+.5},`${lab} ${vfmt(sumVectors()[i])}`,c);textAt({x:a.x,y:a.y-.5},`${lab}₀ ${vfmt(a)}`,c,'center',10)}
+}
+function renderEditables(){if(!['coordinates','challenge'].includes(state.mode))editableIndices().forEach(drawEditable)}
+
+function drawFree(){if(state.mode==='challenge'){arrow({x:0,y:0},state.A,col.A,3,'A');arrow({x:0,y:0},state.B,col.B,3,'B')}}
+function constructionGeometry(mode=state.mode){
+ const anchor={...startOf(0)},vs=mode==='subtract'?[state.A,mul(state.B,-1)]:sumVectors(),steps=[];let running={x:0,y:0};
+ for(let i=0;i<vs.length;i++){const previous={...running};running=add(running,vs[i]);steps.push({index:i,from:add(anchor,previous),to:add(anchor,running),commonEnd:add(anchor,vs[i])})}
+ return {anchor,steps,result:running,end:add(anchor,running)};
+}
+function samePoint(a,b){return near(a.x,b.x,1e-8)&&near(a.y,b.y,1e-8)}
+function constructionCopy(i,from,to,label,step){
+ if(samePoint(from,startOf(i))&&samePoint(to,endOf(i)))return;
+ arrow(from,to,vectorColor(i),2.6,label,.72,progressFor(step));
+}
+function drawSumTriangle(){
+ const g=constructionGeometry();
+ g.steps.forEach((t,i)=>constructionCopy(i,t.from,t.to,vectorLabel(i)+'′',i));
+ arrow(g.anchor,g.end,col.R,4,'R',1,progressFor(g.steps.length));
+ if(state.showValues)drawValueTag({x:g.end.x,y:g.end.y+.65},`R ${vfmt(g.result)}`,col.R);
+}
+function drawSumParallelogram(){
+ const g=constructionGeometry();
+ g.steps.forEach((t,i)=>{constructionCopy(i,g.anchor,t.commonEnd,vectorLabel(i)+'′',i*.35);if(i>0){line(t.from,t.to,'#64748b',1.5,[6,6]);line(t.commonEnd,t.to,'#64748b',1.5,[6,6]);if(i<g.steps.length-1)arrow(g.anchor,t.to,'#64748b',2,`R${i+1}`,.7,progressFor(i+.5));}});
+ arrow(g.anchor,g.end,col.R,4,'R',1,progressFor(g.steps.length));
+ if(state.showValues)drawValueTag({x:g.end.x,y:g.end.y+.65},`R ${vfmt(g.result)}`,col.R);
+}
+function drawSubtract(){const g=constructionGeometry('subtract');arrow(g.steps[1].from,g.steps[1].to,col.O,3,'−B',.85,progressFor(1));arrow(g.anchor,g.end,col.R,4,'A−B',1,progressFor(2));if(state.showValues)drawValueTag({x:g.end.x,y:g.end.y+.65},`A−B ${vfmt(g.result)}`,col.R)}
+function drawScalar(){const start=startOf(0),end=add(start,mul(state.A,state.scalar));arrow(start,end,col.M,4,`${fmt(state.scalar)}A`,.7,progressFor(1));if(state.showValues)drawValueTag({x:end.x,y:end.y+.8},`${fmt(state.scalar)}A ${vfmt(mul(state.A,state.scalar))}`,col.M)}
+function drawCompare(){}
+function drawCoordinates(){const V=sub(state.Q,state.P);if(state.showComponents){line(state.P,{x:state.Q.x,y:state.P.y},'#94a3b8',1.3,[5,5]);line({x:state.Q.x,y:state.P.y},state.Q,'#94a3b8',1.3,[5,5]);}arrow(state.P,state.Q,col.M,4,'PQ');point(state.P,col.A,'P');point(state.Q,col.B,'Q');handle(state.P,col.A,'P');handle(state.Q,col.B,'Q');if(state.showValues&&state.showComponents){textAt({x:(state.P.x+state.Q.x)/2,y:state.P.y-.45},`Δx=${fmt(V.x)}`,col.M,'center',9);textAt({x:state.Q.x+.35,y:(state.P.y+state.Q.y)/2},`Δy=${fmt(V.y)}`,col.M,'left',9)}}
+function drawTranslation(){
+ const base=[{x:-3,y:-2},{x:-1,y:-2},{x:-2,y:0.2}], moved=base.map(p=>add(p,state.A));
+ polygon(base,'rgba(37,99,235,.14)',col.A);polygon(moved,'rgba(16,185,129,.16)',col.G);
+ for(let i=0;i<base.length;i++){arrow(base[i],moved[i],col.G,1.8,'',.58,progressFor(i));line(base[i],moved[i],col.G,1.2,[4,5])}
+
+ ['A','B','C'].forEach((t,i)=>{textAt({x:base[i].x-.12,y:base[i].y+.28},t,col.A,'right',10);textAt({x:moved[i].x-.12,y:moved[i].y+.28},t+"′",col.G,'right',10)});
+}
+function polygon(pts,fill,stroke){const s=pts.map(W2S);ctx.save();ctx.beginPath();ctx.moveTo(s[0].x,s[0].y);for(let i=1;i<s.length;i++)ctx.lineTo(s[i].x,s[i].y);ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=2.2;ctx.stroke();ctx.restore()}
+function drawChallenge(){const t=state.challenge?.type;if(t==='points')drawCoordinates();else if(t==='scalar'){if(state.challenge.solved)drawScalar();else{arrow({x:0,y:0},state.A,col.A,3,'A');handle(state.A,col.A,'A')}}else if(t==='opposite'){arrow({x:0,y:0},state.A,col.A,3,'A');handle(state.A,col.A,'A')}else if(t==='missing'){arrow({x:0,y:0},state.A,col.A,3,'A');arrow({x:0,y:0},add(state.A,state.challenge.ans),col.R,3,'R');handle(state.A,col.A,'A')}else drawFree();}
+function draw(){drawGrid();ctx.save();switch(state.mode){case'free':drawFree();break;case'sumTriangle':drawSumTriangle();break;case'sumParallelogram':drawSumParallelogram();break;case'subtract':drawSubtract();break;case'scalar':drawScalar();break;case'compare':drawCompare();break;case'coordinates':drawCoordinates();break;case'translation':drawTranslation();break;case'challenge':drawChallenge();break;}ctx.restore();renderEditables();}
+
+function getOutput(){if(state.mode==='challenge'&&state.challenge)return state.challenge.ans;switch(state.mode){case'sumTriangle':case'sumParallelogram':return sumAll();case'subtract':return sub(state.A,state.B);case'scalar':return mul(state.A,state.scalar);case'coordinates':return sub(state.Q,state.P);case'compare':return state.B;case'translation':return state.A;default:return add(state.A,state.B)}}
+function compareStatus(){if(mag(state.A)<1e-9&&mag(state.B)<1e-9)return['●','هر دو بردار صفرند','بردار صفر اندازهٔ صفر دارد و جهت معینی ندارد؛ هر دو بردار هم‌سنگ و قرینهٔ یکدیگرند.'];const A=state.A,B=state.B, same=near(A.x,B.x)&&near(A.y,B.y),opp=near(A.x,-B.x)&&near(A.y,-B.y),sameMag=near(mag(A),mag(B),.02);if(same)return['✅','هم‌سنگ هستند','دو بردار مؤلفه‌های برابر دارند؛ پس اندازه و جهتشان نیز یکسان است (بردار صفر جهت معینی ندارد).'];if(opp)return['↔️','قرینه هستند','مؤلفه‌های B دقیقاً قرینهٔ مؤلفه‌های A است؛ اندازه برابر و جهت مخالف.'];if(sameMag)return['📏','اندازه برابر، جهت متفاوت','برابری اندازه به‌تنهایی برای هم‌سنگ بودن کافی نیست؛ جهت هم باید یکسان باشد.'];return['🔎','مقایسه کن','برای هم‌سنگ بودن، هر دو مؤلفه باید برابر باشند؛ برای قرینه بودن، هر دو مؤلفه باید علامت مخالف داشته باشند.']}
+function renderExtraVectorControls(){
+ const wrap=$('#extraVectors');if(!wrap)return;wrap.innerHTML='';
+ state.extraVectors.forEach((v,j)=>{const i=j+2,lab=vectorLabel(i),c=vectorColor(i),card=document.createElement('div');card.className='vec-card';card.innerHTML=`<div class="vec-head"><div class="vec-name"><span class="dot" style="background:${c}"></span>بردار ${lab}</div><span class="help-note">|${lab}|=${mag(v).toFixed(2)}</span></div><div class="xy-grid"><div class="field"><label>مؤلفه x</label><input data-extra="${j}" data-axis="x" type="number" step="0.5" value="${fmt(v.x)}"></div><div class="field"><label>مؤلفه y</label><input data-extra="${j}" data-axis="y" type="number" step="0.5" value="${fmt(v.y)}"></div></div>`;wrap.appendChild(card)});
+ wrap.querySelectorAll('input[data-extra]').forEach(inp=>inp.addEventListener('change',e=>{const j=+e.target.dataset.extra,k=e.target.dataset.axis,n=parseNumber(e.target.value);if(Number.isFinite(n))state.extraVectors[j][k]=clamp(n,-12,12);else toast('یک عدد معتبر وارد کن.');updateUI()}));
+ const count=sumVectors().length;$('#vectorCount').textContent=`${count.toLocaleString('fa-IR')} بردار فعال`;$('#removeVectorBtn').disabled=count<=2;$('#addVectorBtn').disabled=count>=8;
+}
+function updateUI(){
+ endpointUI();
+ const inChallenge=state.mode==='challenge';['Ax','Ay','Bx','By','Px','Py','Qx','Qy','scalarRange'].forEach(id=>$('#'+id).disabled=inChallenge);
+ $('#Ax').value=fmt(state.A.x);$('#Ay').value=fmt(state.A.y);$('#Bx').value=fmt(state.B.x);$('#By').value=fmt(state.B.y);$('#Px').value=fmt(state.P.x);$('#Py').value=fmt(state.P.y);$('#Qx').value=fmt(state.Q.x);$('#Qy').value=fmt(state.Q.y);
+ $('#magA').textContent=`|A|=${mag(state.A).toFixed(2)}`;$('#magB').textContent=`|B|=${mag(state.B).toFixed(2)}`;$('#scalarValue').textContent=fmt(state.scalar);$('#scalarRange').value=state.scalar;
+ $('#metricA').textContent=vfmt(state.A);$('#metricB').textContent=vfmt(state.B);const R=getOutput();$('#metricR').textContent=state.mode==='challenge'&&!state.challenge?.solved?'؟':vfmt(R);$('#metricMag').textContent=state.mode==='challenge'&&!state.challenge?.solved?'؟':mag(R).toFixed(2);$('#mobileSummary').textContent=state.mode==='challenge'?'پاسخ را در بخش چالش وارد کن':state.mode==='coordinates'?`P ${vfmt(state.P)} | Q ${vfmt(state.Q)} | PQ ${vfmt(R)}`:`A ${vfmt(state.A)} | R ${vfmt(R)}`;
+ const [title,desc]=modeMeta[state.mode];$('#modeChip').innerHTML=`<b>${title}</b><br><span>${desc}</span>`;
+ $('#scalarSection').style.display=state.mode==='scalar'?'block':'none';$('#pointSection').style.display=state.mode==='coordinates'?'block':'none';$('#cardB').style.display=['scalar','translation','coordinates'].includes(state.mode)?'none':'block';$('#cardA').style.display=state.mode==='coordinates'?'none':'block';$('#challengeBox').style.display=state.mode==='challenge'?'block':'none';const isSum=['sumTriangle','sumParallelogram'].includes(state.mode);$('#multiVectorControls').style.display=isSum?'block':'none';if(isSum){renderExtraVectorControls();$('#multiVectorNote').textContent=state.mode==='sumTriangle'?'هر بردار جدید به انتهای زنجیره اضافه می‌شود.':'هر بردار جدید با برآیند مرحلهٔ قبل یک متوازی‌الاضلاع تازه می‌سازد.';}
+ let eq='',subt='',st=['💡','مشاهده کن','با تغییر مؤلفه‌ها، رابطهٔ هندسی و عددی هم‌زمان تغییر می‌کند.'];
+ switch(state.mode){
+  case'free':eq=`A = ${vfmt(state.A)}   |   B = ${vfmt(state.B)}`;subt='بردار = جابه‌جایی افقی + جابه‌جایی عمودی';st=['🧭','بردار یعنی اندازه و جهت','مکان شروع بردار اهمیتی ندارد؛ مؤلفه‌های آن مقدار جابه‌جایی افقی و عمودی را مشخص می‌کنند.'];break;
+  case'sumTriangle':case'sumParallelogram':{const vs=sumVectors(),R=sumAll(vs),names=vs.map((_,i)=>vectorLabel(i));eq=`R = ${names.join(' + ')} = ${vfmt(R)}`;subt=`${vs.length} بردار فعال • ابتدا: ${vfmt(startOf(0))} • انتهای برآیند: ${vfmt(add(startOf(0),R))} • مؤلفه‌های R مستقل از محل رسم هستند.`;st=state.mode==='sumTriangle'?['➕','زنجیرهٔ سر به ته','هر بردار از انتهای بردار قبلی شروع می‌شود و برآیند از مبدأ اولین بردار تا انتهای آخرین بردار است.']:['▱','جمع مرحله‌ای متوازی‌الاضلاع',vs.length>2?'ابتدا دو بردار اول جمع می‌شوند؛ سپس هر بردار تازه با برآیند مرحلهٔ قبل یک متوازی‌الاضلاع جدید می‌سازد.':'دو بردار از یک مبدأ شروع می‌شوند و قطر متوازی‌الاضلاع برآیند آن‌هاست.'];break}
+  case'subtract':{const R=sub(state.A,state.B);eq=`A − B = A + (−B) = ${vfmt(R)}`;subt=`−B = ${vfmt(mul(state.B,-1))}`;st=['↩️','تفریق یعنی جمع با قرینه','ابتدا B را قرینه کن، سپس آن را مانند جمع بردارها به A اضافه کن.'];break}
+  case'scalar':{const R=mul(state.A,state.scalar);eq=`${fmt(state.scalar)}A = ${fmt(state.scalar)} × ${vfmt(state.A)} = ${vfmt(R)}`;subt='هر دو مؤلفه در ضریب k ضرب می‌شوند.';st=state.scalar<0?['🔁','ضریب منفی، جهت را برعکس می‌کند','اندازهٔ بردار جدید برابر |k| برابر اندازهٔ A است و جهت آن برعکس می‌شود.']:['📐','ضریب، اندازه را مقیاس می‌کند','اگر k مثبت باشد جهت حفظ می‌شود؛ اگر صفر باشد بردار صفر به دست می‌آید.'];break}
+  case'compare':eq=`A = ${vfmt(state.A)}   |   B = ${vfmt(state.B)}`;subt='هم‌سنگ: مؤلفه‌ها برابر • قرینه: مؤلفه‌ها با علامت مخالف';st=compareStatus();break;
+  case'coordinates':{const V=sub(state.Q,state.P);eq=`PQ = Q − P = ${vfmt(state.Q)} − ${vfmt(state.P)} = ${vfmt(V)}`;subt='مختصات پایان منهای مختصات شروع';st=['📍','ترتیب نقطه‌ها مهم است','PQ و QP قرینهٔ یکدیگرند؛ چون جای نقطهٔ شروع و پایان عوض می‌شود.'];break}
+  case'translation':eq=`(x , y) ⟶ (x + ${fmt(state.A.x)} , y + ${fmt(state.A.y)})`;subt=`بردار انتقال A = ${vfmt(state.A)}`;st=['🧩','همهٔ رأس‌ها یک بردار مشترک دارند','در انتقال شکل نمی‌چرخد و تغییر اندازه نمی‌دهد؛ فقط همهٔ نقاط به یک اندازه و یک جهت جابه‌جا می‌شوند.'];break;
+  case'challenge':eq='تمرین ترکیبی فصل ۵';subt='پاسخ را حساب کن و سپس با شکل مقایسه کن.';st=['🎯','تمرین فعال','برای هر سؤال ابتدا ذهنی/روی کاغذ حساب کن؛ بعد از بررسی، سؤال بعدی خودکار ساخته می‌شود.'];break;
+ }
+ if(state.mode==='scalar'&&(mag(state.A)<1e-9||state.scalar===0))st=['●','خروجی بردار صفر است','اندازهٔ بردار صفر برابر صفر است و جهت معینی ندارد.'];
+ $('#equation').textContent=eq;$('#equationSub').textContent=subt;$('#statusIcon').textContent=st[0];$('#statusTitle').textContent=st[1];$('#statusText').textContent=st[2];
+ draw();
+}
+function setMode(m){clearTimeout(challengeTimer);animationToken++;state.mode=m;$$('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));state.animating=false;state.animT=1;if(m==='challenge'&&state.challenge?.solved)newChallenge();if(m==='challenge'&&!state.challenge)newChallenge();updateUI();fitView();if(m==='challenge'&&matchMedia('(max-width:900px)').matches)mobileOpen('info')}
+$$('.mode-btn').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+
+function bindNumber(id,stateKey,key){$(id).addEventListener('change',e=>{const n=parseNumber(e.target.value);if(Number.isFinite(n))state[stateKey][key]=clamp(n,-12,12);else toast('یک عدد معتبر وارد کن.');updateUI()})}
+bindNumber('#Ax','A','x');bindNumber('#Ay','A','y');bindNumber('#Bx','B','x');bindNumber('#By','B','y');bindNumber('#Px','P','x');bindNumber('#Py','P','y');bindNumber('#Qx','Q','x');bindNumber('#Qy','Q','y');
+$('#endpointVector').onchange=e=>{state.selectedVector=+e.target.value;endpointUI();draw()};
+ ['startX','startY','endX','endY'].forEach(id=>$('#'+id).addEventListener('change',e=>{const n=parseNumber(e.target.value);if(!Number.isFinite(n)){toast('یک عدد معتبر وارد کن.');endpointUI();return}const i=state.selectedVector,which=id.startsWith('start')?'start':'end',p={...(which==='start'?startOf(i):endOf(i))};p[id.endsWith('X')?'x':'y']=+clamp(n,-1000,1000).toFixed(2);setEndpoint(i,which,p);updateUI();fitView()}));
+$('#scalarRange').oninput=e=>{state.scalar=parseNumber(e.target.value);updateUI()};
+$('#addVectorBtn').onclick=()=>{if(sumVectors().length>=8){toast('برای خوانایی نمودار، حداکثر ۸ بردار هم‌زمان فعال می‌شود.');return}const presets=[{x:2,y:-1.5},{x:1.5,y:2},{x:-2.5,y:-1},{x:3,y:1},{x:-1,y:2.5},{x:2,y:0.5}];const p=presets[state.extraVectors.length%presets.length];state.starts[sumVectors().length]={x:0,y:0};state.extraVectors.push({...p});updateUI();fitView();toast(`بردار ${vectorLabel(sumVectors().length-1)} اضافه شد.`)};
+$('#removeVectorBtn').onclick=()=>{if(state.extraVectors.length){const lab=vectorLabel(sumVectors().length-1);state.extraVectors.pop();updateUI();toast(`بردار ${lab} حذف شد.`)}};
+[['gridToggle','showGrid'],['axesToggle','showAxes'],['compToggle','showComponents'],['valueToggle','showValues'],['snapToggle','snap'],['unitToggle','showUnits']].forEach(([id,k])=>$('#'+id).onchange=e=>{state[k]=e.target.checked;draw()});
+
+function fitView(){
+ let pts=[];if(state.mode==='challenge')pts=[{x:0,y:0},state.A,state.B,getOutput()];
+ if(['sumTriangle','sumParallelogram','subtract'].includes(state.mode)){const g=constructionGeometry();pts.push(g.anchor,g.end);g.steps.forEach(t=>pts.push(t.from,t.to,t.commonEnd))}
+ if(state.mode==='coordinates'||(state.mode==='challenge'&&state.challenge?.type==='points'))pts=[state.P,state.Q];
+ if(state.mode==='compare')pts=[];if(!['coordinates','challenge'].includes(state.mode))editableIndices().forEach(i=>pts.push(startOf(i),endOf(i)));if(state.mode==='scalar')pts.push(add(startOf(0),mul(state.A,state.scalar)));
+ if(state.mode==='translation'){const base=[{x:-3,y:-2},{x:-1,y:-2},{x:-2,y:.2}];pts.push(...base,...base.map(p=>add(p,state.A)))}
+ const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),loX=Math.min(...xs)-1.3,hiX=Math.max(...xs)+1.3,loY=Math.min(...ys)-1.3,hiY=Math.max(...ys)+1.3,{w,h}=size();
+ state.zoom=clamp(Math.min((w-44)/(hiX-loX),(h-100)/(hiY-loY)),3,65);state.panX=-(hiX+loX)/2*state.zoom;state.panY=(hiY+loY)/2*state.zoom+15;draw();
+}
+function hit(p,screen,rad=26){const s=W2S(p);return Math.hypot(s.x-screen.x,s.y-screen.y)<=rad}
+function draggableAt(s){
+ if(state.mode==='challenge')return null;
+ if(state.mode==='coordinates'){if(hit(state.P,s))return{type:'point',key:'P'};if(hit(state.Q,s))return{type:'point',key:'Q'};return null}
+ const ids=editableIndices(),preferred=state.selectedVector;const candidates=[];
+ ids.forEach(i=>{for(const which of ['start','end']){const p=which==='start'?startOf(i):endOf(i),pS=W2S(p),distance=Math.hypot(s.x-pS.x,s.y-pS.y);if(distance<=24)candidates.push({type:'endpoint',index:i,which,distance})}});
+ candidates.sort((a,b)=>a.distance-b.distance||(a.index===preferred?-1:b.index===preferred?1:0));if(candidates.length){state.selectedVector=candidates[0].index;endpointUI();return candidates[0]}
+ for(const i of [...ids].sort((a,b)=>a===preferred?-1:b===preferred?1:0)){const a=W2S(startOf(i)),b=W2S(endOf(i)),dx=b.x-a.x,dy=b.y-a.y,L=dx*dx+dy*dy;if(L<1)continue;const t=((s.x-a.x)*dx+(s.y-a.y)*dy)/L;if(t>0&&t<1&&Math.hypot(s.x-a.x-t*dx,s.y-a.y-t*dy)<12){state.selectedVector=i;return{type:'body',index:i,world:S2W(s),start:{...startOf(i)}}}}
+ return null;
+}
+function pointerPos(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+const touches=new Map();let pinch=null;
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);const s=pointerPos(e);touches.set(e.pointerId,s);if(touches.size===2){const [a,b]=[...touches.values()];pinch={distance:Math.hypot(a.x-b.x,a.y-b.y),zoom:state.zoom,world:S2W({x:(a.x+b.x)/2,y:(a.y+b.y)/2})};state.dragging=null;state.panning=false;return}state.dragging=draggableAt(s);state.last=s;if(!state.dragging){state.panning=true;canvas.classList.add('dragging')}e.preventDefault()});
+canvas.addEventListener('pointermove',e=>{const s=pointerPos(e);if(!touches.has(e.pointerId))return;touches.set(e.pointerId,s);if(pinch&&touches.size>=2){const [a,b]=[...touches.values()],mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};state.zoom=clamp(pinch.zoom*Math.hypot(a.x-b.x,a.y-b.y)/Math.max(1,pinch.distance),3,100);const after=W2S(pinch.world);state.panX+=mid.x-after.x;state.panY+=mid.y-after.y;draw();e.preventDefault();return}if(state.dragging){let w=S2W(s);w={x:snap(w.x),y:snap(w.y)};const d=state.dragging;if(d.type==='endpoint'){setEndpoint(d.index,d.which,w)}else if(d.type==='body'){state.starts[d.index]={x:snap(d.start.x+w.x-d.world.x),y:snap(d.start.y+w.y-d.world.y)}}else if(d.type==='vec'){state[d.key].x=w.x;state[d.key].y=w.y}else if(d.type==='triVec'){const vs=sumVectors(),start=cumulativeBefore(d.index,vs),target=vs[d.index];target.x=snap(w.x-start.x);target.y=snap(w.y-start.y)}else if(d.type==='sumVec'){const target=sumVectors()[d.index];target.x=w.x;target.y=w.y}else if(d.type==='point'){state[d.key].x=w.x;state[d.key].y=w.y}else if(d.type==='offsetVec'){state[d.key].x=snap(w.x-d.off.x);state[d.key].y=snap(w.y-d.off.y)}updateUI()}else if(state.panning){state.panX+=s.x-state.last.x;state.panY+=s.y-state.last.y;state.last=s;draw()}e.preventDefault()});
+function endPointer(e){touches.delete(e.pointerId);pinch=null;if(touches.size){state.last=[...touches.values()][0];state.panning=true;state.dragging=null;return}state.dragging=null;state.panning=false;canvas.classList.remove('dragging');try{canvas.releasePointerCapture(e.pointerId)}catch{}}
+canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);canvas.addEventListener('lostpointercapture',e=>{if(touches.has(e.pointerId))endPointer(e)});
+canvas.addEventListener('wheel',e=>{e.preventDefault();const p=pointerPos(e),before=S2W(p);state.zoom=clamp(state.zoom*(e.deltaY<0?1.1:.9),3,100);const after=W2S(before);state.panX+=p.x-after.x;state.panY+=p.y-after.y;draw()},{passive:false});
+$('#zoomIn').onclick=()=>{state.zoom=clamp(state.zoom*1.15,3,100);draw()};$('#zoomOut').onclick=()=>{state.zoom=clamp(state.zoom/1.15,3,100);draw()};$('#homeView').onclick=fitView;
+
+$$('[data-preset]').forEach(b=>b.onclick=()=>{state.extraVectors=[];switch(b.dataset.preset){case'same':state.A={x:3,y:2};state.B={x:3,y:2};setMode('compare');break;case'opposite':state.A={x:3,y:2};state.B={x:-3,y:-2};setMode('compare');break;case'zero':state.A={x:4,y:-2};state.B={x:-4,y:2};setMode('sumTriangle');break;case'perp':state.A={x:4,y:0};state.B={x:0,y:3};setMode('sumParallelogram');break;}updateUI()});
+
+$('#animateBtn').onclick=()=>{const token=++animationToken;state.animating=true;state.animT=0;const start=performance.now(),dur=['sumTriangle','sumParallelogram'].includes(state.mode)?Math.min(3200,1100+sumVectors().length*320):1500;function step(t){if(token!==animationToken)return;state.animT=clamp((t-start)/dur,0,1);draw();if(state.animT<1)requestAnimationFrame(step);else{state.animating=false;draw()}}requestAnimationFrame(step)};
+function resetAll(){state.starts=Array.from({length:8},()=>({x:0,y:0}));state.selectedVector=0;clearTimeout(challengeTimer);animationToken++;state.animating=false;state.animT=1;state.A={x:3,y:2};state.B={x:-2,y:3};state.extraVectors=[];state.P={x:-3,y:-2};state.Q={x:2,y:2};state.scalar=2;state.panX=0;state.panY=0;state.zoom=42;state.score=0;state.streak=0;state.challenge=null;$('#scoreVal').textContent='0';$('#streakVal').textContent='0';if(state.mode==='challenge')newChallenge();updateUI();toast('آزمایش به حالت آغازین برگشت.')}$('#resetAllBtn').onclick=resetAll;
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}function nz(){let n=0;while(n===0)n=rnd(-5,5);return n}
+function newChallenge(){clearTimeout(challengeTimer);$('#checkAnswer').disabled=false;const types=['sum','opposite','scalar','points','missing'],type=types[rnd(0,types.length-1)];let q,ans;
+ if(type==='sum'){state.A={x:nz(),y:nz()};state.B={x:nz(),y:nz()};ans=add(state.A,state.B);q=`اگر A=${vfmt(state.A)} و B=${vfmt(state.B)} باشد، مختصات A+B چیست؟`}
+ if(type==='opposite'){state.A={x:nz(),y:nz()};ans=mul(state.A,-1);q=`بردار قرینهٔ A=${vfmt(state.A)} چه مختصاتی دارد؟`}
+ if(type==='scalar'){state.A={x:nz(),y:nz()};state.scalar=[-3,-2,2,3][rnd(0,3)];ans=mul(state.A,state.scalar);q=`اگر A=${vfmt(state.A)} باشد، ${fmt(state.scalar)}A را پیدا کن.`}
+ if(type==='points'){state.P={x:rnd(-5,1),y:rnd(-4,1)};state.Q={x:rnd(1,5),y:rnd(1,4)};ans=sub(state.Q,state.P);q=`اگر P=${vfmt(state.P)} و Q=${vfmt(state.Q)} باشد، مختصات بردار PQ چیست؟`}
+ if(type==='missing'){state.A={x:nz(),y:nz()};const X={x:nz(),y:nz()};const R=add(state.A,X);ans=X;q=`در معادلهٔ A + X = R، اگر A=${vfmt(state.A)} و R=${vfmt(R)} باشد، X را پیدا کن.`}
+ state.challenge={type,q,ans,solved:false};$('#challengeQ').innerHTML=q.replace(/\([^)]*\)|A\s*\+\s*X\s*=\s*R|A\+B|PQ|[-−]?\d+A/g,t=>`<bdi dir="ltr">${t}</bdi>`);$('#ansX').value='';$('#ansY').value='';$('#challengeFeedback').textContent='';updateUI();fitView()}
+$('#checkAnswer').onclick=()=>{if(!state.challenge||state.challenge.solved)return;const x=parseNumber($('#ansX').value),y=parseNumber($('#ansY').value),a=state.challenge.ans;if(!Number.isFinite(x)||!Number.isFinite(y)){challengeFeedback('هر دو مؤلفه را وارد کن.',false);return}const ok=near(x,a.x,.01)&&near(y,a.y,.01);if(ok){state.challenge.solved=true;$('#checkAnswer').disabled=true;state.score+=10+state.streak*2;state.streak++;$('#scoreVal').textContent=state.score;$('#streakVal').textContent=state.streak;challengeFeedback(`آفرین! پاسخ درست ${vfmt(a)} است. سؤال بعدی...`,true);updateUI();challengeTimer=setTimeout(newChallenge,1400)}else{state.streak=0;$('#streakVal').textContent=0;challengeFeedback(`هنوز نه. یک بار مؤلفهٔ x و y را جداگانه حساب کن.`,false)}};
+function challengeFeedback(t,ok){const el=$('#challengeFeedback');el.textContent=t;el.style.color=ok?'#86efac':'#fca5a5'}
+
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),1800)}
+$('#guideBtn').onclick=()=>{$('#guideModal').classList.add('open');$('#guideModal .close-modal').focus()};$$('[data-close]').forEach(b=>b.onclick=()=>{if(b.dataset.close==='mobileModal')closeMobileModal();else $('#'+b.dataset.close).classList.remove('open')});$$('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m){if(m.id==='mobileModal')closeMobileModal();else m.classList.remove('open')}}));
+
+const mobileOrigins=new Map();
+function moveIntoMobile(panel){
+ if(!mobileOrigins.has(panel)) mobileOrigins.set(panel,{parent:panel.parentNode,next:panel.nextSibling});
+ const c=$('#mobileModalContent');c.innerHTML='';c.appendChild(panel);panel.style.display='block';panel.style.maxHeight='72vh';
+}
+function restoreMobilePanel(){
+ for(const [panel,pos] of mobileOrigins.entries()){if(pos.next&&pos.next.parentNode===pos.parent)pos.parent.insertBefore(panel,pos.next);else pos.parent.appendChild(panel);panel.style.display='';panel.style.maxHeight='';}
+ mobileOrigins.clear();
+}
+function closeMobileModal(){restoreMobilePanel();$('#mobileModal').classList.remove('open')}
+function mobileOpen(kind){
+ restoreMobilePanel();
+ if(kind==='controls') moveIntoMobile($('#leftPanel'));
+ else {if(kind==='challenge'&&state.mode!=='challenge') setMode('challenge');moveIntoMobile($('#rightPanel'));}
+ $('#mobileModal').classList.add('open');$('#mobileModal .close-modal').focus();
+}
+$('#mobileControls').onclick=()=>mobileOpen('controls');$('#mobileInfo').onclick=()=>mobileOpen('info');$('#mobileChallenge').onclick=()=>mobileOpen('challenge');
+
+window.addEventListener('resize',()=>{if(innerWidth>900)closeMobileModal();resize()});new ResizeObserver(resize).observe(shell);document.addEventListener('keydown',e=>{const modal=document.querySelector('.modal-backdrop.open');if(e.key==='Tab'&&modal){const fs=[...modal.querySelectorAll('button,input,select,[tabindex]')].filter(el=>!el.disabled&&el.getClientRects().length);const first=fs[0],last=fs[fs.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}if(e.key==='Escape'){closeMobileModal();$('#guideModal').classList.remove('open')} if(e.key==='r'&&!(e.target instanceof HTMLInputElement))resetAll()});
+document.querySelectorAll('button').forEach(b=>{if(!b.getAttribute('aria-label'))b.setAttribute('aria-label',b.title||b.textContent.trim());});
+ document.querySelectorAll('.field').forEach(f=>{const l=f.querySelector('label'),i=f.querySelector('input');if(l&&i){if(!i.id)i.id='field-'+Math.random().toString(36).slice(2);l.htmlFor=i.id;i.setAttribute('aria-label',l.textContent);}});
+ $('#ansX').setAttribute('aria-label','مؤلفه x پاسخ');$('#ansY').setAttribute('aria-label','مؤلفه y پاسخ');$('#challengeFeedback').setAttribute('aria-live','polite');
+ $$('.modal-backdrop').forEach(m=>{m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label',m.id==='guideModal'?'راهنمای آزمایشگاه':'ابزارهای آزمایشگاه');});
+ resize();updateUI();fitView();
+})();
+</script>
+</body>
+</html>
